@@ -111,3 +111,26 @@ cargo kani --manifest-path examples/oracle-quorum-median-fixed/Cargo.toml \
 cargo kani --manifest-path examples/oracle-quorum-median-fixed/Cargo.toml \
   --harness proofs::fixed_accepts_valid_consensus
 ```
+
+## Fail -> Fix: Signer/Owner Authority
+
+- Vulnerable: `signer-owner-authority-vulnerable`
+- Fixed: `signer-owner-authority-fixed`
+
+Run sequence:
+
+```bash
+# 1) expect FAIL
+cargo kani --manifest-path examples/signer-owner-authority-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_allows_unsigned_wrong_owner_authority
+
+# 2) expect PASS
+cargo kani --manifest-path examples/signer-owner-authority-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_unsigned_authority
+
+cargo kani --manifest-path examples/signer-owner-authority-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_wrong_owner
+
+cargo kani --manifest-path examples/signer-owner-authority-fixed/Cargo.toml \
+  --harness proofs::fixed_accepts_signed_expected_owner
+```

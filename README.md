@@ -228,6 +228,35 @@ cargo kani --manifest-path examples/oracle-quorum-median-fixed/Cargo.toml \
   --harness proofs::fixed_accepts_valid_consensus
 ```
 
+### Signer/owner authority checks (before/after)
+
+Before (failing authority gate):
+
+```rust
+authority_is_signer || true // BUG: bypasses signer + owner checks
+```
+
+After (correct authority gate):
+
+```rust
+authority_is_signer && authority_owner == expected_owner
+```
+
+Runnable fail->fix crates:
+
+- `examples/signer-owner-authority-vulnerable`
+- `examples/signer-owner-authority-fixed`
+
+```bash
+# expected FAIL
+cargo kani --manifest-path examples/signer-owner-authority-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_allows_unsigned_wrong_owner_authority
+
+# expected PASS
+cargo kani --manifest-path examples/signer-owner-authority-fixed/Cargo.toml \
+  --harness proofs::fixed_accepts_signed_expected_owner
+```
+
 ### Full agent flow benchmark harness
 
 `agent::bench::verify_agent_flow_end_to_end` proves a compact escrow settle path with conservation checks.
