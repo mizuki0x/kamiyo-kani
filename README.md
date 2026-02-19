@@ -78,11 +78,11 @@ assert_timelock_release_policy(now, expires_at, agent_signed, oracle_signed, rel
 
 Failure run example:
 
-<img src="docs/assets/gifs/escrow-before.gif" width="25%" alt="Escrow policy failing run" />
+<img src="docs/assets/gifs/escrow-before.gif" width="45%" alt="Escrow policy failing run" />
 
 Passing run example:
 
-![Escrow policy passing run](docs/assets/gifs/escrow-after.gif)
+<img src="docs/assets/gifs/escrow-after.gif" width="45%" alt="Escrow policy passing run" />
 
 Runnable fail->fix crates:
 
