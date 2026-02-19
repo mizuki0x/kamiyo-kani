@@ -165,6 +165,39 @@ cargo kani --manifest-path examples/pda-seed-bump-fixed/Cargo.toml \
   --harness proofs::fixed_rejects_seed_count_overflow
 ```
 
+### Replay/idempotency semantics (before/after)
+
+Before (failing replay semantics):
+
+```rust
+if state.event_id == event_id {
+    return true; // BUG: accepts conflicting duplicate payload
+}
+```
+
+After (idempotent semantics):
+
+```rust
+if state.event_id == event_id {
+    return state.payload_hash == payload_hash;
+}
+```
+
+Runnable fail->fix crates:
+
+- `examples/replay-idempotency-vulnerable`
+- `examples/replay-idempotency-fixed`
+
+```bash
+# expected FAIL
+cargo kani --manifest-path examples/replay-idempotency-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_accepts_conflicting_duplicate_event_id
+
+# expected PASS
+cargo kani --manifest-path examples/replay-idempotency-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_conflicting_duplicate_event_id
+```
+
 ### Full agent flow benchmark harness
 
 `agent::bench::verify_agent_flow_end_to_end` proves a compact escrow settle path with conservation checks.

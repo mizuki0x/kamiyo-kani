@@ -62,3 +62,26 @@ cargo kani --manifest-path examples/pda-seed-bump-fixed/Cargo.toml \
 cargo kani --manifest-path examples/pda-seed-bump-fixed/Cargo.toml \
   --harness proofs::fixed_accepts_valid_shape_and_bump
 ```
+
+## Fail -> Fix: Replay/Idempotency
+
+- Vulnerable: `replay-idempotency-vulnerable`
+- Fixed: `replay-idempotency-fixed`
+
+Run sequence:
+
+```bash
+# 1) expect FAIL
+cargo kani --manifest-path examples/replay-idempotency-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_accepts_conflicting_duplicate_event_id
+
+# 2) expect PASS
+cargo kani --manifest-path examples/replay-idempotency-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_conflicting_duplicate_event_id
+
+cargo kani --manifest-path examples/replay-idempotency-fixed/Cargo.toml \
+  --harness proofs::fixed_accepts_identical_duplicate_event_id
+
+cargo kani --manifest-path examples/replay-idempotency-fixed/Cargo.toml \
+  --harness proofs::fixed_accepts_new_event_id
+```
