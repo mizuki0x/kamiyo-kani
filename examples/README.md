@@ -39,3 +39,26 @@ cargo kani --manifest-path examples/cpi-allowlist-fixed/Cargo.toml \
 cargo kani --manifest-path examples/cpi-allowlist-fixed/Cargo.toml \
   --harness proofs::fixed_allows_allowlisted_contract
 ```
+
+## Fail -> Fix: PDA Seed/Bump Validation
+
+- Vulnerable: `pda-seed-bump-vulnerable`
+- Fixed: `pda-seed-bump-fixed`
+
+Run sequence:
+
+```bash
+# 1) expect FAIL
+cargo kani --manifest-path examples/pda-seed-bump-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_accepts_invalid_shape
+
+# 2) expect PASS
+cargo kani --manifest-path examples/pda-seed-bump-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_seed_count_overflow
+
+cargo kani --manifest-path examples/pda-seed-bump-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_seed_len_overflow
+
+cargo kani --manifest-path examples/pda-seed-bump-fixed/Cargo.toml \
+  --harness proofs::fixed_accepts_valid_shape_and_bump
+```

@@ -131,6 +131,40 @@ cargo kani --manifest-path examples/cpi-allowlist-fixed/Cargo.toml \
   --harness proofs::fixed_allows_allowlisted_contract
 ```
 
+### PDA seed/bump constraints (before/after)
+
+Before (failing validator):
+
+```rust
+// BUG: accepts 17 seeds and up to 64-byte seed length.
+seeds.len() <= 17 && seeds.iter().all(|seed| seed.len() <= 64)
+```
+
+After (correct validator + helper assertions):
+
+```rust
+let accepted = pda_validate_fixed(&seeds);
+if accepted {
+    assert_seed_count_valid(seeds.len());
+    assert_seed_lengths_valid(&seeds);
+}
+```
+
+Runnable fail->fix crates:
+
+- `examples/pda-seed-bump-vulnerable`
+- `examples/pda-seed-bump-fixed`
+
+```bash
+# expected FAIL
+cargo kani --manifest-path examples/pda-seed-bump-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_accepts_invalid_shape
+
+# expected PASS
+cargo kani --manifest-path examples/pda-seed-bump-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_seed_count_overflow
+```
+
 ### Full agent flow benchmark harness
 
 `agent::bench::verify_agent_flow_end_to_end` proves a compact escrow settle path with conservation checks.
