@@ -96,3 +96,54 @@ macro_rules! cpi_stub {
         }
     };
 }
+
+/// Generates a contract-style CPI stub with explicit requires/body/ensures blocks.
+///
+/// This macro is intended for larger harnesses where pushing constraints into a
+/// `requires` block helps reduce path explosion.
+///
+/// # Example
+///
+/// ```ignore
+/// cpi_contract! {
+///     name: settle_after_timelock,
+///     program: ORACLE_PROGRAM,
+///     args: |now: i64, expires_at: i64, agent_signed: bool, oracle_signed: bool| {},
+///     requires: {
+///         kani::assume(expires_at >= 0);
+///     },
+///     body: {
+///         let _authorized = agent_signed || (oracle_signed && now >= expires_at);
+///     },
+///     ensures: {
+///         // Additional postconditions here.
+///     },
+/// }
+/// ```
+#[macro_export]
+macro_rules! cpi_contract {
+    (
+        name: $name:ident,
+        program: $program:expr,
+        args: |$($arg:ident : $arg_ty:ty),* $(,)?| $args_body:block,
+        requires: $requires:block,
+        body: $body:block,
+        ensures: $ensures:block $(,)?
+    ) => {
+        fn $name(
+            $($arg: $arg_ty,)*
+            cpi_log: &mut $crate::agent::cpi::CpiLog,
+        ) {
+            $args_body
+            $requires
+            cpi_log.record($crate::agent::cpi::CpiRecord {
+                target_program: $program,
+                instruction_name: stringify!($name),
+                lamports_transferred: 0,
+                accounts_touched: 0,
+            });
+            $body
+            $ensures
+        }
+    };
+}

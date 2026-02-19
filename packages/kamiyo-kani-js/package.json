@@ -1,0 +1,8 @@
+{
+  "name": "@kamiyo/kani-shim",
+  "version": "0.1.0",
+  "description": "Experimental TypeScript shim for teams that want to consume kamiyo-kani outputs without Rust integration.",
+  "type": "module",
+  "main": "src/index.ts",
+  "license": "MIT"
+}

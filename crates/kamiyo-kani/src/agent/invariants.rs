@@ -2,6 +2,7 @@
 
 use super::account::AgentAccount;
 use super::cpi::CpiLog;
+use super::state_machine::{assert_terminal_state, assert_valid_transition};
 
 /// Asserts total lamports are conserved across all accounts.
 pub fn assert_lamport_conservation(accounts: &[AgentAccount]) {
@@ -39,6 +40,54 @@ pub fn assert_cpi_authorized(log: &CpiLog, allowed_programs: &[[u8; 32]]) {
         }
         assert!(authorized, "CPI to unauthorized program");
     }
+}
+
+/// Asserts a time-lock release policy:
+/// - before expiry: only agent signer can release
+/// - after expiry: agent signer or oracle signer can release
+pub fn assert_timelock_release_policy(
+    now: i64,
+    expires_at: i64,
+    agent_signed: bool,
+    oracle_signed: bool,
+    release_allowed: bool,
+) {
+    let expected = if now < expires_at {
+        agent_signed
+    } else {
+        agent_signed || oracle_signed
+    };
+    assert_eq!(
+        release_allowed, expected,
+        "time-lock release policy violated"
+    );
+}
+
+/// Asserts quorum and median constraints for oracle scoring.
+pub fn assert_oracle_consensus(
+    commits: u8,
+    reveals: u8,
+    quorum: u8,
+    median_score: u8,
+    score_cap: u8,
+) {
+    assert!(reveals <= commits, "reveals cannot exceed commit count");
+    assert!(reveals >= quorum, "insufficient reveals for quorum");
+    assert!(
+        median_score <= score_cap,
+        "median score exceeds configured cap"
+    );
+}
+
+/// Runs transition + terminal checks in one call.
+pub fn assert_fsm_transition_guard<S: Copy + PartialEq>(
+    before: S,
+    after: S,
+    valid_edges: &[(S, S)],
+    terminal_states: &[S],
+) {
+    assert_valid_transition(before, after, valid_edges);
+    assert_terminal_state(before, after, terminal_states);
 }
 
 /// Asserts alignment and mutability invariants on a single account.

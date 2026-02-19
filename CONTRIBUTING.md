@@ -17,6 +17,7 @@ cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
 ./scripts/kani.sh
+./scripts/benchmark-agent-flow.sh
 ```
 
 If you touched heavy harnesses or `cover!` assumptions, also run:

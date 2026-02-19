@@ -6,6 +6,7 @@
 //! and state machine validity.
 
 pub mod account;
+pub mod bench;
 pub mod cpi;
 pub mod invariants;
 pub mod pda;
@@ -15,6 +16,7 @@ pub mod state_machine;
 pub use account::{any_agent_account, AgentAccount, AgentConfig};
 pub use cpi::{CpiLog, CpiRecord};
 pub use invariants::{
-    assert_all_agent_invariants, assert_cpi_authorized, assert_lamport_conservation,
-    assert_no_reentrancy,
+    assert_all_agent_invariants, assert_cpi_authorized, assert_fsm_transition_guard,
+    assert_lamport_conservation, assert_no_reentrancy, assert_oracle_consensus,
+    assert_timelock_release_policy,
 };

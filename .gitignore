@@ -1,4 +1,6 @@
 /target
 **/*.rs.bk
 kani-results/
+bench-results/
+public/
 .DS_Store

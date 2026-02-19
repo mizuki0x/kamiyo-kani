@@ -2,22 +2,23 @@
 
 [![CI](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/ci.yml/badge.svg)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/ci.yml)
 [![Kani](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/kani.yml/badge.svg)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/kani.yml)
+[![Docs](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/docs.yml/badge.svg)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/docs.yml)
 [![Crates.io](https://img.shields.io/crates/v/kamiyo-kani.svg)](https://crates.io/crates/kamiyo-kani)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Reusable Kani verification primitives and harnesses for Solana programs.
 
-## Why this repo exists
+## Why kamiyo-kani?
 
-Most Solana teams do not need a full formal methods stack. They need a fast path to prove a small set of high-value invariants in CI:
+Most Solana teams do not need a full formal methods stack. They need a fast path to prove high-value invariants in CI:
 
 - value conservation (lamports and split math)
-- bounds and monotonicity for risk math
-- PDA seed/bump constraints
-- replay and state transition safety
-- AccountInfo mutation invariants
+- bounds and monotonicity in risk math
+- PDA seed and bump constraints
+- replay and state-transition safety
+- `AccountInfo` mutation invariants
 
-`kamiyo-kani` packages these as copyable primitives and runnable harnesses.
+This project follows a simple principle: collaboration lifts the ecosystem. Share proof primitives, reduce duplicate mistakes, and make verification normal in shipping workflows.
 
 ## Install
 
@@ -56,17 +57,71 @@ cargo kani setup
 cargo kani -p kamiyo-kani
 ```
 
+## Real-world use cases
+
+### Escrow release policy (before/after)
+
+Before (failing release policy):
+
+```rust
+let release_allowed = oracle_signed && now >= expires_at;
+```
+
+After (correct policy):
+
+```rust
+let release_allowed = agent_signed || (oracle_signed && now >= expires_at);
+assert_timelock_release_policy(now, expires_at, agent_signed, oracle_signed, release_allowed);
+```
+
+Failure run example:
+
+![Escrow policy failing run](docs/assets/gifs/escrow-before.gif)
+
+Passing run example:
+
+![Escrow policy passing run](docs/assets/gifs/escrow-after.gif)
+
+### Full agent flow benchmark harness
+
+`agent::bench::verify_agent_flow_end_to_end` proves a compact escrow settle path with conservation checks.
+
+```bash
+KANI_AGENT=1 cargo kani -p kamiyo-kani --features solana-agent --harness agent::bench::verify_agent_flow_end_to_end
+```
+
+Current benchmark target: prove this harness in under 5 seconds on `ubuntu-latest`.
+
 ## Feature flags
 
-- `kani-full`: enable additional heavyweight proofs
-- `solana-agent`: enable agent invariants
-- `solana-account-info`: enable `AccountInfo` generators and proofs
+- `kani-full`: additional heavyweight proofs
+- `solana-agent`: agent invariants + CPI contracts + FSM guards
+- `solana-account-info`: symbolic `AccountInfo` helpers and proofs
+
+## Phase roadmap
+
+- Phase 1: shipped core Solana invariants and `AccountInfo` generators
+- Phase 2: shipped `cpi_contract!` macro and explicit timelock/oracle/FSM auto-assert helpers
+
+## API docs
+
+- Hosted docs: https://kamiyo-ai.github.io/kamiyo-kani/kamiyo_kani/
+- Generate locally: `cargo doc --no-deps --open`
+
+## Docs
+
+- `docs/BUG_CLASSES.md`
+- `docs/ROADMAP.md`
+- `docs/RELEASE_CHECKLIST.md`
+- `docs/ADOPTION.md`
 
 ## Included assets
 
 - `crates/kamiyo-kani`: verification primitives and harnesses
 - `templates/anchor-invariants`: starter template for Anchor teams
-- `docs/RELEASE_CHECKLIST.md`: v0.1 launch checklist
+- `docs/BUG_CLASSES.md`: explicit bug classes this crate targets
+- `docs/RELEASE_CHECKLIST.md`: release bar for quality and adoption
+- `packages/kamiyo-kani-js`: experimental TypeScript shim for parsing proof artifacts
 
 ## Related work
 

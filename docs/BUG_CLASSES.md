@@ -31,6 +31,7 @@ Proof modules:
 Proof modules:
 - `agent/state_machine`
 - `agent/replay`
+- `agent/bench`
 
 ## 4. PDA and account-shape bugs
 
@@ -41,6 +42,7 @@ Proof modules:
 - `agent/pda`
 - `agent/account`
 - `agent/invariants`
+- `agent/cpi` (`cpi_stub!` and `cpi_contract!`)
 
 ## 5. AccountInfo mutation bugs
 

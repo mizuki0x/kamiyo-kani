@@ -13,12 +13,14 @@
 extern crate kamiyo_kani;
 
 use kamiyo_kani::agent::invariants::{
-    assert_account_invariants, assert_is_signer, assert_pda_has_bump,
+    assert_account_invariants, assert_fsm_transition_guard, assert_is_signer,
+    assert_oracle_consensus, assert_pda_has_bump, assert_timelock_release_policy,
 };
 use kamiyo_kani::agent::pda::{assert_seed_count_valid, assert_seed_lengths_valid};
 use kamiyo_kani::agent::replay::labeled_assert;
 use kamiyo_kani::agent::state_machine::{assert_terminal_state, assert_valid_transition};
 use kamiyo_kani::agent::*;
+use kamiyo_kani::cpi_contract;
 use kamiyo_kani::cpi_stub;
 
 // ---------------------------------------------------------------------------
@@ -255,4 +257,71 @@ fn verify_cpi_stub_records_call() {
         i += 1;
     }
     kani::assert(found, "recorded CPI call must exist in log");
+}
+
+// ---------------------------------------------------------------------------
+// 13. cpi_contract! macro records a contract-style CPI call.
+// ---------------------------------------------------------------------------
+
+#[kani::proof]
+fn verify_cpi_contract_records_call() {
+    const ORACLE_PROGRAM: [u8; 32] = [0xCD; 32];
+
+    cpi_contract! {
+        name: settle_after_timelock,
+        program: ORACLE_PROGRAM,
+        args: |now: i64, expires_at: i64, agent_signed: bool, oracle_signed: bool| {},
+        requires: {
+            kani::assume(expires_at >= 0);
+        },
+        body: {
+            let release_allowed = agent_signed || (oracle_signed && now >= expires_at);
+            assert_timelock_release_policy(now, expires_at, agent_signed, oracle_signed, release_allowed);
+        },
+        ensures: {},
+    }
+
+    let now: i64 = kani::any();
+    let expires_at: i64 = kani::any::<u32>() as i64;
+    let agent_signed: bool = kani::any();
+    let oracle_signed: bool = kani::any();
+    let mut log = CpiLog::new();
+
+    settle_after_timelock(now, expires_at, agent_signed, oracle_signed, &mut log);
+    kani::assert(
+        log.count() == 1,
+        "cpi_contract must record exactly one call",
+    );
+}
+
+// ---------------------------------------------------------------------------
+// 14. Oracle consensus helper enforces quorum and score cap.
+// ---------------------------------------------------------------------------
+
+#[kani::proof]
+fn verify_oracle_consensus_helper() {
+    let commits: u8 = kani::any();
+    let quorum: u8 = kani::any();
+    let reveals: u8 = kani::any();
+    let median_score: u8 = kani::any();
+    let score_cap: u8 = kani::any();
+
+    kani::assume(commits >= quorum);
+    kani::assume(reveals >= quorum);
+    kani::assume(reveals <= commits);
+    kani::assume(median_score <= score_cap);
+
+    assert_oracle_consensus(commits, reveals, quorum, median_score, score_cap);
+}
+
+// ---------------------------------------------------------------------------
+// 15. Combined FSM guard enforces transition + terminal checks.
+// ---------------------------------------------------------------------------
+
+#[kani::proof]
+fn verify_fsm_transition_guard() {
+    let edges: [(u8, u8); 3] = [(0, 1), (1, 2), (2, 3)];
+    let terminals: [u8; 1] = [3];
+    assert_fsm_transition_guard(1u8, 2u8, &edges, &terminals);
+    assert_fsm_transition_guard(3u8, 3u8, &edges, &terminals);
 }

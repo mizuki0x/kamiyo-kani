@@ -11,6 +11,8 @@
 - [ ] `cargo check`, `cargo test`, `cargo clippy` pass on stable
 - [ ] `./scripts/kani.sh` passes
 - [ ] `KANI_FULL=1 ./scripts/kani.sh` passes
+- [ ] `./scripts/kani-ci.sh` emits `kani.sarif` and uploads in CI
+- [ ] `./scripts/benchmark-agent-flow.sh` publishes runtime summary
 - [ ] CI and Kani workflows green on `main`
 
 ## Trust bar

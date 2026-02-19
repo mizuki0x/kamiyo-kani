@@ -1,10 +1,10 @@
 # kamiyo-kani
 
-Reusable Kani harnesses for Solana protocol math: bounds, value conservation, monotonicity, and Percolator-style risk primitives (haircut ratio and profit haircut math).
+Reusable Kani harnesses for Solana protocol math and agent invariants.
 
 Everything is gated behind `cfg(kani)`, so normal builds are unaffected.
 
-## 30-second Usage
+## Usage
 
 Add as a dev dependency:
 
@@ -40,32 +40,23 @@ Run:
 ```bash
 cargo install --locked kani-verifier
 cargo kani setup
-cargo kani
+cargo kani -p kamiyo-kani
 ```
 
-## Solana AccountInfo Generators
+## CPI contract stubs
 
-`kamiyo-kani` also exposes a Kani-only `AccountInfo` helper module (aligned with the RFC in [Kani issue #4550](https://github.com/model-checking/kani/issues/4550)):
+- `cpi_stub!`: pre/post CPI modeling
+- `cpi_contract!`: requires/body/ensures contract-style CPI modeling for lower path branching
 
-```rust
-#![cfg(kani)]
+## Policy helpers
 
-use kamiyo_kani::account_info::{any_agent_account, AccountConfig, LamportSnapshot};
+- `assert_timelock_release_policy`
+- `assert_oracle_consensus`
+- `assert_fsm_transition_guard`
 
-#[kani::proof]
-fn release_policy_example() {
-    let payer = any_agent_account::<0>(AccountConfig::new().payer());
-    let escrow = any_agent_account::<128>(AccountConfig::new().writable());
-    let before = LamportSnapshot::new(&[&payer, &escrow]);
-    kani::assert(before.unchanged(&[&payer, &escrow]), "unchanged without mutation");
-}
-```
+## Solana AccountInfo generators
 
-Run these harnesses with:
-
-```bash
-cargo kani -p kamiyo-kani --features solana-account-info
-```
+`kamiyo-kani` exposes a Kani-only `AccountInfo` helper module aligned with [Kani issue #4550](https://github.com/model-checking/kani/issues/4550).
 
 ## License
 
