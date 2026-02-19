@@ -82,6 +82,21 @@ Passing run example:
 
 ![Escrow policy passing run](docs/assets/gifs/escrow-after.gif)
 
+Runnable fail->fix crates:
+
+- `examples/escrow-release-policy-vulnerable`
+- `examples/escrow-release-policy-fixed`
+
+```bash
+# expected FAIL
+cargo kani --manifest-path examples/escrow-release-policy-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_allows_oracle_before_expiry
+
+# expected PASS
+cargo kani --manifest-path examples/escrow-release-policy-fixed/Cargo.toml \
+  --harness proofs::fixed_blocks_oracle_before_expiry
+```
+
 ### Full agent flow benchmark harness
 
 `agent::bench::verify_agent_flow_end_to_end` proves a compact escrow settle path with conservation checks.
