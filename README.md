@@ -1,4 +1,4 @@
-# kamiyo-kani
+# KAMIYO Kani
 
 [![CI](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/ci.yml/badge.svg)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/ci.yml)
 [![Kani](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/kani.yml/badge.svg)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/kani.yml)
