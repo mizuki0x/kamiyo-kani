@@ -13,8 +13,7 @@
 extern crate kamiyo_kani;
 
 use kamiyo_kani::agent::invariants::{
-    assert_account_invariants, assert_fsm_transition_guard, assert_is_signer,
-    assert_oracle_consensus, assert_pda_has_bump, assert_timelock_release_policy,
+    assert_fsm_transition_guard, assert_oracle_consensus, assert_timelock_release_policy,
 };
 use kamiyo_kani::agent::pda::{assert_seed_count_valid, assert_seed_lengths_valid};
 use kamiyo_kani::agent::replay::labeled_assert;
@@ -295,7 +294,108 @@ fn verify_cpi_contract_records_call() {
 }
 
 // ---------------------------------------------------------------------------
-// 14. Oracle consensus helper enforces quorum and score cap.
+// 14. cpi_contract! can carry custom record metadata.
+// ---------------------------------------------------------------------------
+
+#[kani::proof]
+fn verify_cpi_contract_records_metadata() {
+    const TOKEN_PROGRAM: [u8; 32] = [0xEF; 32];
+
+    cpi_contract! {
+        name: transfer_with_metadata,
+        program: TOKEN_PROGRAM,
+        args: |amount: u64, touched: u8| {},
+        requires: {
+            kani::assume(touched > 0);
+        },
+        body: {},
+        ensures: {},
+        record: {
+            lamports_transferred: amount,
+            accounts_touched: touched,
+        },
+    }
+
+    let amount: u64 = kani::any::<u16>() as u64;
+    let touched: u8 = kani::any::<u8>();
+    kani::assume(touched > 0);
+
+    let mut log = CpiLog::new();
+    transfer_with_metadata(amount, touched, &mut log);
+    kani::assert(log.count() == 1, "expected exactly one CPI record");
+
+    let record = log.get(0).expect("missing CPI record");
+    kani::assert(
+        record.lamports_transferred == amount,
+        "lamports_transferred metadata mismatch",
+    );
+    kani::assert(
+        record.accounts_touched == touched,
+        "accounts_touched metadata mismatch",
+    );
+}
+
+// ---------------------------------------------------------------------------
+// 15. cpi_contract! auto_asserts execute oracle/timelock/FSM checks.
+// ---------------------------------------------------------------------------
+
+#[kani::proof]
+fn verify_cpi_contract_auto_asserts() {
+    const ORACLE_PROGRAM: [u8; 32] = [0xAA; 32];
+
+    cpi_contract! {
+        name: settle_with_auto_asserts,
+        program: ORACLE_PROGRAM,
+        args: |
+            now: i64,
+            expires_at: i64,
+            agent_signed: bool,
+            oracle_signed: bool,
+            commits: u8,
+            reveals: u8,
+            quorum: u8,
+            median_score: u8,
+            score_cap: u8,
+            before_step: u8,
+            after_step: u8
+        | {},
+        requires: {
+            kani::assume(agent_signed || oracle_signed);
+        },
+        body: {
+            let _release_allowed = if now < expires_at {
+                agent_signed
+            } else {
+                agent_signed || oracle_signed
+            };
+            let edges = [(0u8, 1u8), (1u8, 2u8), (2u8, 3u8)];
+            let terminals = [3u8];
+            kani::assume(before_step <= 3);
+            kani::assume(after_step <= 3);
+            kani::assume(before_step == after_step || (before_step + 1 == after_step));
+            let release_allowed = _release_allowed;
+            let _ = (edges, terminals, release_allowed);
+        },
+        ensures: {},
+        auto_asserts: {
+            timelock: (now, expires_at, agent_signed, oracle_signed, if now < expires_at { agent_signed } else { agent_signed || oracle_signed });
+            oracle: (commits, reveals, quorum, median_score, score_cap);
+            oracle_monotonic: (0u64, 1u64);
+            fsm: (before_step, after_step, &[(0u8, 1u8), (1u8, 2u8), (2u8, 3u8)], &[3u8]);
+            fsm_monotonic: (before_step, after_step);
+        },
+    }
+
+    let mut log = CpiLog::new();
+    settle_with_auto_asserts(20, 10, true, false, 7, 5, 3, 90, 100, 1, 2, &mut log);
+    kani::assert(
+        log.count() == 1,
+        "auto-assert contract must record one call",
+    );
+}
+
+// ---------------------------------------------------------------------------
+// 16. Oracle consensus helper enforces quorum and score cap.
 // ---------------------------------------------------------------------------
 
 #[kani::proof]
@@ -315,7 +415,7 @@ fn verify_oracle_consensus_helper() {
 }
 
 // ---------------------------------------------------------------------------
-// 15. Combined FSM guard enforces transition + terminal checks.
+// 17. Combined FSM guard enforces transition + terminal checks.
 // ---------------------------------------------------------------------------
 
 #[kani::proof]

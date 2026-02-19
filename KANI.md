@@ -15,13 +15,23 @@ cargo kani setup
 ./scripts/kani.sh
 ```
 
-Runs a fast, deterministic harness set.
+Runs a fast, deterministic harness set used in CI.
 
-## Full proofs (all harnesses for selected features)
+## Full proofs (CI-viable full set)
 
 ```bash
 KANI_FULL=1 ./scripts/kani.sh
 ```
+
+Runs smoke plus additional full-mode harnesses that are expected to complete in CI.
+
+## Stress proofs (SAT-heavy harnesses)
+
+```bash
+KANI_FULL=1 KANI_STRESS=1 ./scripts/kani.sh
+```
+
+Runs all stress harnesses. These are intentionally heavier and may take significantly longer.
 
 ## Agent + AccountInfo smoke proofs
 
@@ -37,6 +47,12 @@ This runs default smoke proofs plus the agent end-to-end harness.
 KANI_FULL=1 KANI_AGENT=1 KANI_ACCOUNT_INFO=1 ./scripts/kani.sh
 ```
 
+## Agent + AccountInfo stress proofs
+
+```bash
+KANI_FULL=1 KANI_STRESS=1 KANI_AGENT=1 KANI_ACCOUNT_INFO=1 ./scripts/kani.sh
+```
+
 ## CI-style output + SARIF
 
 ```bash
@@ -48,6 +64,10 @@ Artifacts:
 - `kani-results/kani.log`
 - `kani-results/summary.md`
 - `kani-results/kani.sarif`
+
+## `solana-account-info` warning note
+
+When `KANI_ACCOUNT_INFO=1` is enabled, Kani may print unsupported-construct warnings from upstream Solana internals. Current harnesses verify successfully; treat new warnings as actionable only if a harness fails.
 
 ## Agent-flow benchmark
 

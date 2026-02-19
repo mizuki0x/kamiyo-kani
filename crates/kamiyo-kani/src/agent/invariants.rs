@@ -63,6 +63,12 @@ pub fn assert_timelock_release_policy(
     );
 }
 
+/// Add canonical assumptions for timelock proofs.
+pub fn assume_timelock_well_formed(now: i64, expires_at: i64) {
+    kani::assume(expires_at >= 0);
+    kani::assume(now >= 0);
+}
+
 /// Asserts quorum and median constraints for oracle scoring.
 pub fn assert_oracle_consensus(
     commits: u8,
@@ -77,6 +83,30 @@ pub fn assert_oracle_consensus(
         median_score <= score_cap,
         "median score exceeds configured cap"
     );
+}
+
+/// Add canonical assumptions for oracle consensus proofs.
+pub fn assume_oracle_well_formed(
+    commits: u8,
+    reveals: u8,
+    quorum: u8,
+    median_score: u8,
+    score_cap: u8,
+) {
+    kani::assume(commits >= quorum);
+    kani::assume(reveals >= quorum);
+    kani::assume(reveals <= commits);
+    kani::assume(median_score <= score_cap);
+}
+
+/// Monotonic helper for round/slot counters.
+pub fn assume_nondecreasing_u64(before: u64, after: u64) {
+    kani::assume(after >= before);
+}
+
+/// Monotonic helper for compact state indices.
+pub fn assume_nondecreasing_u8(before: u8, after: u8) {
+    kani::assume(after >= before);
 }
 
 /// Runs transition + terminal checks in one call.

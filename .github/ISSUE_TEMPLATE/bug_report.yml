@@ -1,0 +1,58 @@
+name: Bug report
+description: Report an incorrect proof result, runtime regression, or API bug.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. Include a minimal reproduction and exact command output.
+
+  - type: input
+    id: crate_version
+    attributes:
+      label: kamiyo-kani version
+      placeholder: e.g. 0.1.1
+    validations:
+      required: true
+
+  - type: input
+    id: kani_version
+    attributes:
+      label: Kani version
+      placeholder: e.g. Kani Rust Verifier 0.67.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: Exact command that reproduces the issue.
+      placeholder: cargo kani -p kamiyo-kani --harness ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste output or attach artifacts.
+      render: shell
+    validations:
+      required: true

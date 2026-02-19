@@ -1,8 +1,26 @@
 {
   "name": "@kamiyo/kani-shim",
-  "version": "0.1.0",
-  "description": "Experimental TypeScript shim for teams that want to consume kamiyo-kani outputs without Rust integration.",
+  "version": "0.1.1",
+  "description": "JavaScript shim for teams that want to consume kamiyo-kani CI outputs without Rust integration.",
   "type": "module",
-  "main": "src/index.ts",
-  "license": "MIT"
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kamiyo-ai/kamiyo-kani.git",
+    "directory": "packages/kamiyo-kani-js"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

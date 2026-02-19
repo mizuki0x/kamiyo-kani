@@ -157,3 +157,14 @@ cargo kani --manifest-path examples/fsm-transition-guard-fixed/Cargo.toml \
 cargo kani --manifest-path examples/fsm-transition-guard-fixed/Cargo.toml \
   --harness proofs::fixed_accepts_valid_progression
 ```
+
+## End-to-End: Autonomous Payment Oracle (x402-style)
+
+- Fixed: `autonomous-payment-oracle-fixed`
+
+Run sequence:
+
+```bash
+cargo kani --manifest-path examples/autonomous-payment-oracle-fixed/Cargo.toml \
+  --harness proofs::proof_autonomous_payment_oracle_flow
+```

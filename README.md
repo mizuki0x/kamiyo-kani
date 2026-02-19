@@ -3,14 +3,17 @@
 [![CI](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/ci.yml)
 [![Kani](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/kani.yml/badge.svg?branch=main&event=push)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/kani.yml)
 [![Docs](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/docs.yml/badge.svg?branch=main&event=push)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/docs.yml)
+[![Benchmarks](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/benchmark.yml/badge.svg?branch=main&event=push)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/benchmark.yml)
+[![Coverage](https://codecov.io/gh/kamiyo-ai/kamiyo-kani/branch/main/graph/badge.svg)](https://codecov.io/gh/kamiyo-ai/kamiyo-kani)
 [![Crates.io](https://img.shields.io/crates/v/kamiyo-kani.svg)](https://crates.io/crates/kamiyo-kani)
+[![Crates.io Downloads](https://img.shields.io/crates/d/kamiyo-kani.svg)](https://crates.io/crates/kamiyo-kani)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ![kamiyo-kani](https://github.com/user-attachments/assets/316bc32f-dbf1-4872-8508-6788392817f8)
 
 Reusable Kani verification primitives and harnesses for Solana programs.
 
-## Why?
+## Why kamiyo-kani?
 
 Most Solana teams do not need a full formal methods stack. They need a fast path to prove high-value invariants in CI:
 
@@ -22,11 +25,16 @@ Most Solana teams do not need a full formal methods stack. They need a fast path
 
 This project follows a simple principle: collaboration lifts the ecosystem. Share proof primitives, reduce duplicate mistakes, and make verification normal in shipping workflows.
 
+Project posture:
+- contribute generic verification gaps upstream to Kani
+- keep Solana-focused agentic verification layers here
+- ship runnable fail->fix examples so teams can adopt without a formal methods team
+
 ## Install
 
 ```toml
 [dev-dependencies]
-kamiyo-kani = "0.1.0"
+kamiyo-kani = "0.1.1"
 ```
 
 ## Quick start
@@ -83,6 +91,11 @@ Failure run example:
 Passing run example:
 
 <img src="docs/assets/gifs/escrow-after.gif" width="45%" alt="Escrow policy passing run" />
+
+Cargo Kani output snapshots:
+
+<img src="docs/assets/images/kani-fail.svg" width="45%" alt="Kani failing output snapshot" />
+<img src="docs/assets/images/kani-pass.svg" width="45%" alt="Kani passing output snapshot" />
 
 Runnable fail->fix crates:
 
@@ -299,11 +312,39 @@ KANI_AGENT=1 cargo kani -p kamiyo-kani --features solana-agent --harness agent::
 
 Current benchmark target: prove this harness in under 5 seconds on `ubuntu-latest`.
 
+### End-to-end autonomous payment oracle (x402-style)
+
+`examples/autonomous-payment-oracle-fixed` proves one integrated flow:
+- oracle quote acceptance with quorum/cap and round monotonicity
+- x402 event replay/idempotency semantics
+- timelock policy for settlement authorization
+- allowlisted CPI settlement and lamport conservation
+- FSM progression from quote-locked to settled
+
+```bash
+cargo kani --manifest-path examples/autonomous-payment-oracle-fixed/Cargo.toml \
+  --harness proofs::proof_autonomous_payment_oracle_flow
+```
+
 ## Feature flags
 
-- `kani-full`: additional heavyweight proofs
+- `kani-full`: CI-viable full proof set
+- `kani-stress`: SAT-heavy proofs (depends on `kani-full`)
 - `solana-agent`: agent invariants + CPI contracts + FSM guards
 - `solana-account-info`: symbolic `AccountInfo` helpers and proofs
+
+Proof profiles:
+
+```bash
+# smoke (default CI profile)
+./scripts/kani.sh
+
+# full (CI-viable full profile)
+KANI_FULL=1 ./scripts/kani.sh
+
+# stress (heaviest profile)
+KANI_FULL=1 KANI_STRESS=1 ./scripts/kani.sh
+```
 
 ## Phase roadmap
 
@@ -321,6 +362,7 @@ Current benchmark target: prove this harness in under 5 seconds on `ubuntu-lates
 - `docs/ROADMAP.md`
 - `docs/RELEASE_CHECKLIST.md`
 - `docs/ADOPTION.md`
+- `docs/USER_GUIDE.md`
 
 ## Included assets
 
@@ -334,6 +376,11 @@ Current benchmark target: prove this harness in under 5 seconds on `ubuntu-lates
 
 - Kani `AccountInfo` generator RFC: https://github.com/model-checking/kani/issues/4550
 - Percolator risk primitive alignment: https://github.com/aeyakovenko/percolator/pull/19
+
+## Community
+
+- Rust Zulip `#model-checking`: https://rust-lang.zulipchat.com/#narrow/stream/266514-model-checking
+- Solana Discord: https://discord.com/invite/solana
 
 ## License
 

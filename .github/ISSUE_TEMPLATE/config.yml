@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Rust Zulip #kani
+    url: https://rust-lang.zulipchat.com/#narrow/stream/266514-model-checking
+    about: Kani-specific modeling and verifier questions.
+  - name: Solana Discord
+    url: https://discord.com/invite/solana
+    about: Solana program design and security discussions.

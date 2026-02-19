@@ -18,5 +18,6 @@ pub use cpi::{CpiLog, CpiRecord};
 pub use invariants::{
     assert_all_agent_invariants, assert_cpi_authorized, assert_fsm_transition_guard,
     assert_lamport_conservation, assert_no_reentrancy, assert_oracle_consensus,
-    assert_timelock_release_policy,
+    assert_timelock_release_policy, assume_nondecreasing_u64, assume_nondecreasing_u8,
+    assume_oracle_well_formed, assume_timelock_well_formed,
 };

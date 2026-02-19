@@ -29,6 +29,13 @@ mod proofs {
         },
         body: {},
         ensures: {},
+        record: {
+            lamports_transferred: amount,
+            accounts_touched: 2,
+        },
+        auto_asserts: {
+            oracle_monotonic: (0u64, 1u64);
+        },
     }
 
     #[kani::proof]

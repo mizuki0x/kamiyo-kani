@@ -145,7 +145,9 @@ pub fn any_account_info<const DATA_LEN: usize>(cfg: AccountConfig) -> AccountInf
 }
 
 pub fn lamports(account: &AccountInfo<'_>) -> u64 {
-    **account.lamports.borrow()
+    // Proof harnesses construct single-owner accounts; direct access avoids
+    // `RefCell` panic paths that create unsupported constructs in Kani.
+    unsafe { **account.lamports.as_ptr() }
 }
 
 pub fn sum_lamports(accounts: &[&AccountInfo<'_>]) -> u128 {
@@ -162,5 +164,104 @@ impl LamportSnapshot {
 
     pub fn unchanged(self, accounts: &[&AccountInfo<'_>]) -> bool {
         sum_lamports(accounts) == self.0
+    }
+}
+
+#[cfg(kani)]
+mod proofs {
+    use super::*;
+
+    #[kani::proof]
+    fn proof_account_config_flags_are_applied() {
+        let mut cfg = AccountConfig::new().rent_exempt(false);
+
+        let signer: bool = kani::any();
+        let writable: bool = kani::any();
+        let executable: bool = kani::any();
+        let rent_epoch: u64 = kani::any();
+
+        if signer {
+            cfg = cfg.signer();
+        }
+        if writable {
+            cfg = cfg.writable();
+        }
+        if executable {
+            cfg = cfg.executable();
+        }
+        cfg = cfg.rent_epoch(rent_epoch);
+
+        let account = any_account_info::<16>(cfg);
+        kani::assert(account.is_signer == signer, "signer flag mismatch");
+        kani::assert(account.is_writable == writable, "writable flag mismatch");
+        kani::assert(account.executable == executable, "executable flag mismatch");
+        kani::assert(account.rent_epoch == rent_epoch, "rent_epoch mismatch");
+    }
+
+    #[kani::proof]
+    fn proof_account_lamports_range_is_enforced() {
+        let min: u64 = u64::from(kani::any::<u16>());
+        let max: u64 = u64::from(kani::any::<u16>());
+        kani::assume(min <= max);
+
+        let account = any_account_info::<0>(
+            AccountConfig::new()
+                .rent_exempt(false)
+                .lamports_range(min..=max),
+        );
+        let value = lamports(&account);
+        kani::assert(value >= min, "lamports below configured min");
+        kani::assert(value <= max, "lamports above configured max");
+    }
+
+    #[kani::proof]
+    fn proof_lamport_snapshot_tracks_mutations() {
+        let from_start: u64 = u64::from(kani::any::<u16>());
+        let to_start: u64 = u64::from(kani::any::<u16>());
+        let delta: u64 = u64::from(kani::any::<u16>());
+
+        kani::assume(from_start >= delta);
+        kani::assume(to_start.checked_add(delta).is_some());
+
+        let from = any_account_info::<8>(
+            AccountConfig::new()
+                .rent_exempt(false)
+                .writable()
+                .lamports(from_start),
+        );
+        let to = any_account_info::<8>(
+            AccountConfig::new()
+                .rent_exempt(false)
+                .writable()
+                .lamports(to_start),
+        );
+
+        let before = LamportSnapshot::new(&[&from, &to]);
+        unsafe {
+            **from.lamports.as_ptr() -= delta;
+            **to.lamports.as_ptr() += delta;
+        }
+
+        kani::assert(
+            before.unchanged(&[&from, &to]),
+            "transfer changed total lamports",
+        );
+
+        let one_lamport: u64 = 1;
+        kani::assume(from_start.checked_add(one_lamport).is_some());
+        let single = any_account_info::<8>(
+            AccountConfig::new()
+                .rent_exempt(false)
+                .writable()
+                .lamports(from_start),
+        );
+        let snapshot = LamportSnapshot::new(&[&single]);
+        unsafe {
+            **single.lamports.as_ptr() += one_lamport;
+        }
+        kani::assert(
+            !snapshot.unchanged(&[&single]),
+            "snapshot failed to detect lamport mutation",
+        );
     }
 }

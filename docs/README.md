@@ -4,6 +4,7 @@
 - `ROADMAP.md`: feature phases and next steps
 - `RELEASE_CHECKLIST.md`: release quality and adoption checklist
 - `ADOPTION.md`: channel and launch plan
+- `USER_GUIDE.md`: step-by-step integration and CI patterns
 
 API docs are published from `cargo doc` to GitHub Pages:
 

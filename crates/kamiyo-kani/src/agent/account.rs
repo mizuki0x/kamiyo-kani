@@ -29,8 +29,7 @@ pub struct AgentConfig {
     min_lamports: Option<u64>,
     max_lamports: Option<u64>,
     is_program: bool,
-    pda_seeds: Option<Vec<Vec<u8>>>,
-    pda_program: Option<[u8; 32]>,
+    has_pda: bool,
 }
 
 impl Default for AgentConfig {
@@ -44,8 +43,7 @@ impl Default for AgentConfig {
             min_lamports: None,
             max_lamports: None,
             is_program: false,
-            pda_seeds: None,
-            pda_program: None,
+            has_pda: false,
         }
     }
 }
@@ -93,9 +91,8 @@ impl AgentConfig {
     }
 
     /// Mark as a PDA derived from the given seeds and program.
-    pub fn pda(mut self, seeds: &[&[u8]], program: [u8; 32]) -> Self {
-        self.pda_seeds = Some(seeds.iter().map(|s| s.to_vec()).collect());
-        self.pda_program = Some(program);
+    pub fn pda(mut self, _seeds: &[&[u8]], _program: [u8; 32]) -> Self {
+        self.has_pda = true;
         self
     }
 }
@@ -141,7 +138,7 @@ pub fn any_agent_account(config: AgentConfig) -> AgentAccount {
         (false, kani::any())
     };
 
-    let pda_bump: Option<u8> = if config.pda_seeds.is_some() {
+    let pda_bump: Option<u8> = if config.has_pda {
         Some(kani::any())
     } else {
         None

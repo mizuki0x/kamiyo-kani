@@ -1,7 +1,7 @@
 //! CPI contract stubs for formal verification of cross-program invocations.
 
 /// A single recorded CPI call.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CpiRecord {
     pub target_program: [u8; 32],
     pub instruction_name: &'static str,
@@ -50,6 +50,20 @@ impl CpiLog {
         self.records[..self.count]
             .iter()
             .filter_map(|slot| slot.as_ref())
+    }
+
+    /// Returns a record by index.
+    pub fn get(&self, index: usize) -> Option<&CpiRecord> {
+        if index >= self.count {
+            return None;
+        }
+        self.records[index].as_ref()
+    }
+}
+
+impl Default for CpiLog {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -118,8 +132,70 @@ macro_rules! cpi_stub {
 ///     ensures: {
 ///         // Additional postconditions here.
 ///     },
+///     record: {
+///         lamports_transferred: 0,
+///         accounts_touched: 2,
+///     },
+///     auto_asserts: {
+///         timelock: (now, expires_at, agent_signed, oracle_signed, _authorized);
+///     },
 /// }
 /// ```
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __kamiyo_cpi_contract_auto_asserts {
+    () => {};
+
+    (timelock: ($now:expr, $expires_at:expr, $agent_signed:expr, $oracle_signed:expr, $release_allowed:expr); $($rest:tt)*) => {
+        $crate::agent::invariants::assume_timelock_well_formed($now, $expires_at);
+        $crate::agent::assert_timelock_release_policy(
+            $now,
+            $expires_at,
+            $agent_signed,
+            $oracle_signed,
+            $release_allowed,
+        );
+        $crate::__kamiyo_cpi_contract_auto_asserts!($($rest)*);
+    };
+
+    (oracle: ($commits:expr, $reveals:expr, $quorum:expr, $median_score:expr, $score_cap:expr); $($rest:tt)*) => {
+        $crate::agent::invariants::assume_oracle_well_formed(
+            $commits,
+            $reveals,
+            $quorum,
+            $median_score,
+            $score_cap,
+        );
+        $crate::agent::assert_oracle_consensus(
+            $commits,
+            $reveals,
+            $quorum,
+            $median_score,
+            $score_cap,
+        );
+        $crate::__kamiyo_cpi_contract_auto_asserts!($($rest)*);
+    };
+
+    (oracle_monotonic: ($before:expr, $after:expr); $($rest:tt)*) => {
+        $crate::agent::invariants::assume_nondecreasing_u64($before, $after);
+        $crate::__kamiyo_cpi_contract_auto_asserts!($($rest)*);
+    };
+
+    (fsm: ($before:expr, $after:expr, $valid_edges:expr, $terminal_states:expr); $($rest:tt)*) => {
+        $crate::agent::assert_fsm_transition_guard($before, $after, $valid_edges, $terminal_states);
+        $crate::__kamiyo_cpi_contract_auto_asserts!($($rest)*);
+    };
+
+    (fsm_monotonic: ($before:expr, $after:expr); $($rest:tt)*) => {
+        $crate::agent::invariants::assume_nondecreasing_u8($before, $after);
+        $crate::__kamiyo_cpi_contract_auto_asserts!($($rest)*);
+    };
+
+    ($unknown:tt $($rest:tt)*) => {
+        compile_error!("unsupported cpi_contract auto_asserts clause");
+    };
+}
+
 #[macro_export]
 macro_rules! cpi_contract {
     (
@@ -128,7 +204,12 @@ macro_rules! cpi_contract {
         args: |$($arg:ident : $arg_ty:ty),* $(,)?| $args_body:block,
         requires: $requires:block,
         body: $body:block,
-        ensures: $ensures:block $(,)?
+        ensures: $ensures:block,
+        record: {
+            lamports_transferred: $lamports_transferred:expr,
+            accounts_touched: $accounts_touched:expr $(,)?
+        },
+        auto_asserts: { $($auto_asserts:tt)* } $(,)?
     ) => {
         fn $name(
             $($arg: $arg_ty,)*
@@ -136,14 +217,91 @@ macro_rules! cpi_contract {
         ) {
             $args_body
             $requires
+            let lamports_transferred: u64 = $lamports_transferred;
+            let accounts_touched: u8 = $accounts_touched;
             cpi_log.record($crate::agent::cpi::CpiRecord {
                 target_program: $program,
                 instruction_name: stringify!($name),
-                lamports_transferred: 0,
-                accounts_touched: 0,
+                lamports_transferred,
+                accounts_touched,
             });
             $body
+            $crate::__kamiyo_cpi_contract_auto_asserts!($($auto_asserts)*);
             $ensures
+        }
+    };
+
+    (
+        name: $name:ident,
+        program: $program:expr,
+        args: |$($arg:ident : $arg_ty:ty),* $(,)?| $args_body:block,
+        requires: $requires:block,
+        body: $body:block,
+        ensures: $ensures:block,
+        record: {
+            lamports_transferred: $lamports_transferred:expr,
+            accounts_touched: $accounts_touched:expr $(,)?
+        } $(,)?
+    ) => {
+        $crate::cpi_contract! {
+            name: $name,
+            program: $program,
+            args: |$($arg: $arg_ty),*| $args_body,
+            requires: $requires,
+            body: $body,
+            ensures: $ensures,
+            record: {
+                lamports_transferred: $lamports_transferred,
+                accounts_touched: $accounts_touched,
+            },
+            auto_asserts: {},
+        }
+    };
+
+    (
+        name: $name:ident,
+        program: $program:expr,
+        args: |$($arg:ident : $arg_ty:ty),* $(,)?| $args_body:block,
+        requires: $requires:block,
+        body: $body:block,
+        ensures: $ensures:block,
+        auto_asserts: { $($auto_asserts:tt)* } $(,)?
+    ) => {
+        $crate::cpi_contract! {
+            name: $name,
+            program: $program,
+            args: |$($arg: $arg_ty),*| $args_body,
+            requires: $requires,
+            body: $body,
+            ensures: $ensures,
+            record: {
+                lamports_transferred: 0,
+                accounts_touched: 0,
+            },
+            auto_asserts: { $($auto_asserts)* },
+        }
+    };
+
+    (
+        name: $name:ident,
+        program: $program:expr,
+        args: |$($arg:ident : $arg_ty:ty),* $(,)?| $args_body:block,
+        requires: $requires:block,
+        body: $body:block,
+        ensures: $ensures:block $(,)?
+    ) => {
+        $crate::cpi_contract! {
+            name: $name,
+            program: $program,
+            args: |$($arg: $arg_ty),*| $args_body,
+            requires: $requires,
+            body: $body,
+            ensures: $ensures,
+            record: {
+                lamports_transferred: 0,
+                accounts_touched: 0,
+            },
+            auto_asserts: {},
         }
     };
 }

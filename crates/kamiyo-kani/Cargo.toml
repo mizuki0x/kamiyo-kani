@@ -1,6 +1,6 @@
 [package]
 name = "kamiyo-kani"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 description = "Reusable Kani formal verification primitives for Solana program invariants"
@@ -14,6 +14,7 @@ readme = "README.md"
 [features]
 default = []
 kani-full = []
+kani-stress = ["kani-full"]
 solana-agent = []
 solana-account-info = ["dep:solana-program"]
 

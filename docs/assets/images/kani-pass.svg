@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" viewBox="0 0 900 220" role="img" aria-label="Kani pass output">
+  <rect width="900" height="220" fill="#0b1020"/>
+  <rect x="18" y="18" width="864" height="184" rx="8" fill="#0f172a" stroke="#334155"/>
+  <text x="34" y="52" fill="#93c5fd" font-family="Menlo, Consolas, monospace" font-size="18">$ cargo kani --manifest-path examples/escrow-release-policy-fixed/Cargo.toml</text>
+  <text x="34" y="86" fill="#86efac" font-family="Menlo, Consolas, monospace" font-size="17">Check 1: fixed_blocks_oracle_before_expiry.assertion.1</text>
+  <text x="34" y="112" fill="#86efac" font-family="Menlo, Consolas, monospace" font-size="17">  - Status: SUCCESS</text>
+  <text x="34" y="138" fill="#86efac" font-family="Menlo, Consolas, monospace" font-size="17">SUMMARY: ** 0 of 1 failed</text>
+  <text x="34" y="176" fill="#86efac" font-family="Menlo, Consolas, monospace" font-size="18">VERIFICATION:- SUCCESSFUL</text>
+</svg>

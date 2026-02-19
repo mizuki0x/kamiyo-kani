@@ -10,7 +10,7 @@ Add as a dev dependency:
 
 ```toml
 [dev-dependencies]
-kamiyo-kani = "0.1.0"
+kamiyo-kani = "0.1.1"
 ```
 
 Use in your own proofs:
@@ -47,12 +47,23 @@ cargo kani -p kamiyo-kani
 
 - `cpi_stub!`: pre/post CPI modeling
 - `cpi_contract!`: requires/body/ensures contract-style CPI modeling for lower path branching
+  - optional `record` metadata (`lamports_transferred`, `accounts_touched`)
+  - optional `auto_asserts` clauses:
+    - `timelock: (...)`
+    - `oracle: (...)`
+    - `oracle_monotonic: (...)`
+    - `fsm: (...)`
+    - `fsm_monotonic: (...)`
 
 ## Policy helpers
 
 - `assert_timelock_release_policy`
 - `assert_oracle_consensus`
 - `assert_fsm_transition_guard`
+- `assume_timelock_well_formed`
+- `assume_oracle_well_formed`
+- `assume_nondecreasing_u64`
+- `assume_nondecreasing_u8`
 
 ## Solana AccountInfo generators
 
