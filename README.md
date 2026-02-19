@@ -10,7 +10,7 @@
 
 Reusable Kani verification primitives and harnesses for Solana programs.
 
-## Why kamiyo-kani?
+## Why?
 
 Most Solana teams do not need a full formal methods stack. They need a fast path to prove high-value invariants in CI:
 
