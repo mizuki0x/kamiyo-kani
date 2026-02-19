@@ -1,0 +1,4 @@
+/target
+**/*.rs.bk
+kani-results/
+.DS_Store

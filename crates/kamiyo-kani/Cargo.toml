@@ -1,0 +1,21 @@
+[package]
+name = "kamiyo-kani"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Reusable Kani formal verification primitives for Solana program invariants"
+keywords = ["kani", "formal-verification", "solana", "proof", "invariant"]
+categories = ["development-tools::testing"]
+readme = "README.md"
+
+[features]
+default = []
+kani-full = []
+solana-agent = []
+solana-account-info = ["dep:solana-program"]
+
+[dependencies]
+solana-program = { version = "2.3.0", optional = true }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
