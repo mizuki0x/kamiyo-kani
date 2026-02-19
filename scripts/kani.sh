@@ -41,12 +41,16 @@ if [[ -n "${KANI_HARNESS:-}" ]]; then
 fi
 
 # Keep default CI fast and stable. Deeper checks are available via KANI_FULL=1.
-if [[ "${KANI_FULL:-0}" == "0" && "${KANI_TESTS:-0}" == "0" && "${KANI_AGENT:-0}" == "0" && "${KANI_ACCOUNT_INFO:-0}" == "0" ]]; then
+if [[ "${KANI_FULL:-0}" == "0" && "${KANI_TESTS:-0}" == "0" ]]; then
   default_harnesses=(
     risk::proofs::proof_haircut_ratio_basic_properties
     risk::proofs::proof_fee_sweep_conservation
     risk::proofs::proof_writeoff_conservation
   )
+
+  if [[ "${KANI_AGENT:-0}" == "1" ]]; then
+    default_harnesses+=(agent::bench::verify_agent_flow_end_to_end)
+  fi
 
   for harness in "${default_harnesses[@]}"; do
     run_kani --harness "$harness"
