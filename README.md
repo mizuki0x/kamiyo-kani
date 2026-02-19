@@ -257,6 +257,36 @@ cargo kani --manifest-path examples/signer-owner-authority-fixed/Cargo.toml \
   --harness proofs::fixed_accepts_signed_expected_owner
 ```
 
+### FSM transition guards (before/after)
+
+Before (failing transition gate):
+
+```rust
+before != Settled // BUG: allows non-terminal state to jump anywhere
+```
+
+After (explicit transition table):
+
+```rust
+before == after
+    || matches!((before, after), (Init, Funded) | (Funded, Revealed) | (Revealed, Settled))
+```
+
+Runnable fail->fix crates:
+
+- `examples/fsm-transition-guard-vulnerable`
+- `examples/fsm-transition-guard-fixed`
+
+```bash
+# expected FAIL
+cargo kani --manifest-path examples/fsm-transition-guard-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_allows_skip_to_terminal
+
+# expected PASS
+cargo kani --manifest-path examples/fsm-transition-guard-fixed/Cargo.toml \
+  --harness proofs::fixed_accepts_valid_progression
+```
+
 ### Full agent flow benchmark harness
 
 `agent::bench::verify_agent_flow_end_to_end` proves a compact escrow settle path with conservation checks.

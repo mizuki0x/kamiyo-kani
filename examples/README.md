@@ -134,3 +134,26 @@ cargo kani --manifest-path examples/signer-owner-authority-fixed/Cargo.toml \
 cargo kani --manifest-path examples/signer-owner-authority-fixed/Cargo.toml \
   --harness proofs::fixed_accepts_signed_expected_owner
 ```
+
+## Fail -> Fix: FSM Transition Guard
+
+- Vulnerable: `fsm-transition-guard-vulnerable`
+- Fixed: `fsm-transition-guard-fixed`
+
+Run sequence:
+
+```bash
+# 1) expect FAIL
+cargo kani --manifest-path examples/fsm-transition-guard-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_allows_skip_to_terminal
+
+# 2) expect PASS
+cargo kani --manifest-path examples/fsm-transition-guard-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_skip_to_terminal
+
+cargo kani --manifest-path examples/fsm-transition-guard-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_terminal_exit
+
+cargo kani --manifest-path examples/fsm-transition-guard-fixed/Cargo.toml \
+  --harness proofs::fixed_accepts_valid_progression
+```
