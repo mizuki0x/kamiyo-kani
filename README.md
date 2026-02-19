@@ -97,6 +97,40 @@ cargo kani --manifest-path examples/escrow-release-policy-fixed/Cargo.toml \
   --harness proofs::fixed_blocks_oracle_before_expiry
 ```
 
+### CPI allowlist enforcement (before/after)
+
+Before (failing gate):
+
+```rust
+// BUG: ignores target program identity.
+!allowed_programs.is_empty()
+```
+
+After (correct gate + contract modeling):
+
+```rust
+let should_invoke = cpi_gate_fixed(target_program, &allowed_programs);
+if should_invoke {
+    invoke_allowlisted_cpi(amount, &mut cpi_log); // via cpi_contract!
+}
+assert_cpi_authorized(&cpi_log, &allowed_programs);
+```
+
+Runnable fail->fix crates:
+
+- `examples/cpi-allowlist-vulnerable`
+- `examples/cpi-allowlist-fixed`
+
+```bash
+# expected FAIL
+cargo kani --manifest-path examples/cpi-allowlist-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_allows_unauthorized_program
+
+# expected PASS
+cargo kani --manifest-path examples/cpi-allowlist-fixed/Cargo.toml \
+  --harness proofs::fixed_allows_allowlisted_contract
+```
+
 ### Full agent flow benchmark harness
 
 `agent::bench::verify_agent_flow_end_to_end` proves a compact escrow settle path with conservation checks.

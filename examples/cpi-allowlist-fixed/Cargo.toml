@@ -1,0 +1,10 @@
+[package]
+name = "cpi-allowlist-fixed"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+kamiyo-kani = { path = "../../crates/kamiyo-kani", features = ["solana-agent"] }
+
+[workspace]
