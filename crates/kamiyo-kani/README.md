@@ -10,7 +10,7 @@ Add as a dev dependency:
 
 ```toml
 [dev-dependencies]
-kamiyo-kani = { git = "https://github.com/kamiyo-ai/kamiyo-kani", package = "kamiyo-kani" }
+kamiyo-kani = "0.1.0"
 ```
 
 Use in your own proofs:

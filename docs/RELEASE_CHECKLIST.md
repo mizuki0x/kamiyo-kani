@@ -23,6 +23,6 @@
 
 ## Adoption bar
 
-- [ ] crates.io publish (`kamiyo-kani`)
+- [x] crates.io publish (`kamiyo-kani`)
 - [ ] template repo example linked from README
 - [ ] short migration guide for teams currently using custom harnesses
