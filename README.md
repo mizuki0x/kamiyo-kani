@@ -3,7 +3,7 @@
 [![CI](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/ci.yml)
 [![Kani](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/kani.yml/badge.svg?branch=main&event=push)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/kani.yml)
 [![Docs](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/docs.yml/badge.svg?branch=main&event=push)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/docs.yml)
-[![Crates.io](https://img.shields.io/crates/v/kamiyo-kani.svg)](https://crates.io/crates/kamiyo-kani)
+[![crate status](https://img.shields.io/badge/crate-unpublished-lightgrey.svg)](docs/RELEASE_CHECKLIST.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ![kamiyo-kani](https://github.com/user-attachments/assets/55d0b982-4bb7-4354-9395-b161d1ce2e36)
@@ -26,7 +26,7 @@ This project follows a simple principle: collaboration lifts the ecosystem. Shar
 
 ```toml
 [dev-dependencies]
-kamiyo-kani = "0.1"
+kamiyo-kani = { git = "https://github.com/kamiyo-ai/kamiyo-kani", package = "kamiyo-kani" }
 ```
 
 ## Quick start
