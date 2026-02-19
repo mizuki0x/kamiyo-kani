@@ -326,6 +326,19 @@ cargo kani --manifest-path examples/autonomous-payment-oracle-fixed/Cargo.toml \
   --harness proofs::proof_autonomous_payment_oracle_flow
 ```
 
+### End-to-end x402 SVM agentic payments
+
+`examples/x402-svm-agent-payments-fixed` proves an SVM payment-settlement flow with:
+- x402 request replay/idempotency semantics
+- allowlisted CPI settlement target checks
+- lamport conservation for payer and merchant accounts
+- CPI metadata checks (`lamports_transferred`, `accounts_touched`)
+
+```bash
+cargo kani --manifest-path examples/x402-svm-agent-payments-fixed/Cargo.toml \
+  --harness proofs::proof_svm_x402_agentic_payment
+```
+
 ## Feature flags
 
 - `kani-full`: CI-viable full proof set

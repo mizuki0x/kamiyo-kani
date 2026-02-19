@@ -168,3 +168,14 @@ Run sequence:
 cargo kani --manifest-path examples/autonomous-payment-oracle-fixed/Cargo.toml \
   --harness proofs::proof_autonomous_payment_oracle_flow
 ```
+
+## End-to-End: x402 SVM Agentic Payments
+
+- Fixed: `x402-svm-agent-payments-fixed`
+
+Run sequence:
+
+```bash
+cargo kani --manifest-path examples/x402-svm-agent-payments-fixed/Cargo.toml \
+  --harness proofs::proof_svm_x402_agentic_payment
+```
