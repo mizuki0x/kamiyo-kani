@@ -198,6 +198,36 @@ cargo kani --manifest-path examples/replay-idempotency-fixed/Cargo.toml \
   --harness proofs::fixed_rejects_conflicting_duplicate_event_id
 ```
 
+### Oracle quorum/median constraints (before/after)
+
+Before (failing consensus check):
+
+```rust
+// BUG: only compares reveals <= commits.
+reveals <= commits
+```
+
+After (correct consensus check):
+
+```rust
+reveals <= commits && reveals >= quorum && median <= cap
+```
+
+Runnable fail->fix crates:
+
+- `examples/oracle-quorum-median-vulnerable`
+- `examples/oracle-quorum-median-fixed`
+
+```bash
+# expected FAIL
+cargo kani --manifest-path examples/oracle-quorum-median-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_accepts_insufficient_reveals
+
+# expected PASS
+cargo kani --manifest-path examples/oracle-quorum-median-fixed/Cargo.toml \
+  --harness proofs::fixed_accepts_valid_consensus
+```
+
 ### Full agent flow benchmark harness
 
 `agent::bench::verify_agent_flow_end_to_end` proves a compact escrow settle path with conservation checks.

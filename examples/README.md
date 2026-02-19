@@ -85,3 +85,29 @@ cargo kani --manifest-path examples/replay-idempotency-fixed/Cargo.toml \
 cargo kani --manifest-path examples/replay-idempotency-fixed/Cargo.toml \
   --harness proofs::fixed_accepts_new_event_id
 ```
+
+## Fail -> Fix: Oracle Quorum/Median
+
+- Vulnerable: `oracle-quorum-median-vulnerable`
+- Fixed: `oracle-quorum-median-fixed`
+
+Run sequence:
+
+```bash
+# 1) expect FAIL
+cargo kani --manifest-path examples/oracle-quorum-median-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_accepts_insufficient_reveals
+
+cargo kani --manifest-path examples/oracle-quorum-median-vulnerable/Cargo.toml \
+  --harness proofs::vulnerable_accepts_median_over_cap
+
+# 2) expect PASS
+cargo kani --manifest-path examples/oracle-quorum-median-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_insufficient_reveals
+
+cargo kani --manifest-path examples/oracle-quorum-median-fixed/Cargo.toml \
+  --harness proofs::fixed_rejects_median_over_cap
+
+cargo kani --manifest-path examples/oracle-quorum-median-fixed/Cargo.toml \
+  --harness proofs::fixed_accepts_valid_consensus
+```
