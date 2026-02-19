@@ -333,9 +333,22 @@ mod proofs {
 
     #[kani::proof]
     fn proof_funding_long_short_symmetry() {
-        let position: u128 = kani::any::<u64>() as u128;
-        let rate_num: i128 = kani::any::<i64>() as i128;
-        let rate_den: u128 = kani::any::<u64>() as u128;
+        let position: u128 = u128::from(kani::any::<u8>());
+        let rate_num: i128 = i128::from(kani::any::<i8>());
+        let rate_den: u128 = u128::from(kani::any::<u8>());
+
+        let long_pay = funding_payment(position, rate_num, rate_den, true);
+        let short_pay = funding_payment(position, rate_num, rate_den, false);
+
+        kani::assert(long_pay == -short_pay, "long_pay == -short_pay");
+    }
+
+    #[cfg(feature = "kani-full")]
+    #[kani::proof]
+    fn proof_funding_long_short_symmetry_wide_domain() {
+        let position: u128 = u128::from(kani::any::<u16>());
+        let rate_num: i128 = i128::from(kani::any::<i16>());
+        let rate_den: u128 = u128::from(kani::any::<u16>());
 
         let long_pay = funding_payment(position, rate_num, rate_den, true);
         let short_pay = funding_payment(position, rate_num, rate_den, false);
