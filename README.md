@@ -6,7 +6,7 @@
 [![crate status](https://img.shields.io/badge/crate-unpublished-lightgrey.svg)](docs/RELEASE_CHECKLIST.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-![kamiyo-kani](https://github.com/user-attachments/assets/55d0b982-4bb7-4354-9395-b161d1ce2e36)
+![kamiyo-kani](https://github.com/user-attachments/assets/316bc32f-dbf1-4872-8508-6788392817f8)
 
 Reusable Kani verification primitives and harnesses for Solana programs.
 
