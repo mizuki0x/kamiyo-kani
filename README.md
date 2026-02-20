@@ -4,9 +4,8 @@
 [![Kani](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/kani.yml/badge.svg?branch=main&event=push)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/kani.yml)
 [![Docs](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/docs.yml/badge.svg?branch=main&event=push)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/docs.yml)
 [![Benchmarks](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/benchmark.yml/badge.svg?branch=main&event=push)](https://github.com/kamiyo-ai/kamiyo-kani/actions/workflows/benchmark.yml)
-[![Coverage](https://codecov.io/gh/kamiyo-ai/kamiyo-kani/branch/main/graph/badge.svg)](https://codecov.io/gh/kamiyo-ai/kamiyo-kani)
+[![Coverage](https://codecov.io/gh/kamiyo-ai/kamiyo-kani/graph/badge.svg?branch=main)](https://codecov.io/gh/kamiyo-ai/kamiyo-kani)
 [![Crates.io](https://img.shields.io/crates/v/kamiyo-kani.svg)](https://crates.io/crates/kamiyo-kani)
-[![Crates.io Downloads](https://img.shields.io/crates/d/kamiyo-kani.svg)](https://crates.io/crates/kamiyo-kani)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ![kamiyo-kani](https://github.com/user-attachments/assets/316bc32f-dbf1-4872-8508-6788392817f8)
