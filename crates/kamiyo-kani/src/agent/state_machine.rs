@@ -15,6 +15,7 @@ pub fn assert_valid_transition<S: Copy + PartialEq>(before: S, after: S, valid_e
         let (src, dst) = valid_edges[i];
         if src == before && dst == after {
             found = true;
+            break;
         }
         i += 1;
     }
@@ -30,6 +31,7 @@ pub fn assert_terminal_state<S: Copy + PartialEq>(state: S, next: S, terminal_st
     while i < terminal_states.len() {
         if terminal_states[i] == state {
             is_terminal = true;
+            break;
         }
         i += 1;
     }

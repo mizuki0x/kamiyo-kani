@@ -46,7 +46,7 @@ list_skills() {
     exit 1
   fi
 
-  find "${skills_root}" -mindepth 2 -maxdepth 2 -type d | while read -r dir; do
+  while IFS= read -r -d '' dir; do
     skill_id="$(basename "$(dirname "${dir}")")"
     skill_version="$(basename "${dir}")"
     skill_doc="${dir}/SKILL.md"
@@ -59,7 +59,7 @@ list_skills() {
     else
       printf '%s@%s\n' "${skill_id}" "${skill_version}"
     fi
-  done | sort
+  done < <(find "${skills_root}" -mindepth 2 -maxdepth 2 -type d -print0) | sort
 }
 
 normalize_key() {
@@ -94,22 +94,42 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --skill)
+      if [[ $# -lt 2 ]]; then
+        echo "Missing value for --skill." >&2
+        exit 1
+      fi
       skill_id="$2"
       shift 2
       ;;
     --version)
+      if [[ $# -lt 2 ]]; then
+        echo "Missing value for --version." >&2
+        exit 1
+      fi
       skill_version="$2"
       shift 2
       ;;
     --files-modified)
+      if [[ $# -lt 2 ]]; then
+        echo "Missing value for --files-modified." >&2
+        exit 1
+      fi
       files_modified_csv="$2"
       shift 2
       ;;
     --target-repo)
+      if [[ $# -lt 2 ]]; then
+        echo "Missing value for --target-repo." >&2
+        exit 1
+      fi
       target_repo="$2"
       shift 2
       ;;
     --set)
+      if [[ $# -lt 2 ]]; then
+        echo "Missing value for --set." >&2
+        exit 1
+      fi
       kv="$2"
       if [[ "${kv}" != *"="* ]]; then
         echo "Invalid --set value: ${kv}. Expected KEY=VALUE." >&2
@@ -127,10 +147,18 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --output)
+      if [[ $# -lt 2 ]]; then
+        echo "Missing value for --output." >&2
+        exit 1
+      fi
       output_file="$2"
       shift 2
       ;;
     --patch-file)
+      if [[ $# -lt 2 ]]; then
+        echo "Missing value for --patch-file." >&2
+        exit 1
+      fi
       patch_file="$2"
       shift 2
       ;;
@@ -170,6 +198,10 @@ if ! target_repo="$(cd "${target_repo}" && pwd)"; then
   echo "Unable to resolve target repo: ${target_repo}" >&2
   exit 1
 fi
+if ! git -C "${target_repo}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Target repo is not a git work tree: ${target_repo}" >&2
+  exit 1
+fi
 
 skill_base_dir="${skills_root}/${skill_id}"
 if [[ ! -d "${skill_base_dir}" ]]; then
@@ -180,7 +212,7 @@ if [[ ! -d "${skill_base_dir}" ]]; then
 fi
 
 if [[ "${skill_version}" == "latest" ]]; then
-  skill_version="$(find "${skill_base_dir}" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -t. -k1,1n -k2,2n | tail -n 1)"
+  skill_version="$(find "${skill_base_dir}" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -V | tail -n 1)"
 fi
 
 if [[ -z "${skill_version}" ]]; then
@@ -255,6 +287,7 @@ if [[ -n "${patch_file}" ]]; then
     echo "Patch file not found: ${patch_file}" >&2
     exit 1
   fi
+  git -C "${target_repo}" apply --check "${patch_file}"
   git -C "${target_repo}" apply "${patch_file}"
   echo "Applied patch: ${patch_file}"
 fi

@@ -1,12 +1,4 @@
-//! Self-verification harnesses for the `kamiyo_kani::agent` module.
-//!
-//! Each `#[kani::proof]` function exercises a specific safety property of
-//! the agent primitives: account generation constraints, lamport conservation,
-//! reentrancy prevention, CPI authorization, state machine transitions,
-//! PDA seed limits, and CPI stub recording.
-//!
-//! These proofs are designed to be run under `cargo kani --features solana-agent`
-//! and compile only when `cfg(kani)` is active.
+//! Self-verification proofs for `kamiyo_kani::agent`.
 
 #![cfg(all(kani, feature = "solana-agent"))]
 
@@ -22,10 +14,6 @@ use kamiyo_kani::agent::*;
 use kamiyo_kani::cpi_contract;
 use kamiyo_kani::cpi_stub;
 
-// ---------------------------------------------------------------------------
-// 1. Payer accounts must be signers, writable, with sufficient lamports.
-// ---------------------------------------------------------------------------
-
 #[kani::proof]
 fn verify_payer_is_signer_and_writable() {
     let acc = any_agent_account(AgentConfig::new().payer());
@@ -37,10 +25,6 @@ fn verify_payer_is_signer_and_writable() {
     );
 }
 
-// ---------------------------------------------------------------------------
-// 2. Program accounts must have is_program=true and executable=true.
-// ---------------------------------------------------------------------------
-
 #[kani::proof]
 fn verify_program_account_executable() {
     let program_id: [u8; 32] = kani::any();
@@ -49,19 +33,11 @@ fn verify_program_account_executable() {
     kani::assert(acc.executable, "program account must be executable");
 }
 
-// ---------------------------------------------------------------------------
-// 3. All generated accounts have 8-byte aligned data_len.
-// ---------------------------------------------------------------------------
-
 #[kani::proof]
 fn verify_data_len_aligned() {
     let acc = any_agent_account(AgentConfig::new());
     kani::assert(acc.data_len % 8 == 0, "data_len must be 8-byte aligned");
 }
-
-// ---------------------------------------------------------------------------
-// 4. initial_lamports always equals lamports at creation time.
-// ---------------------------------------------------------------------------
 
 #[kani::proof]
 fn verify_initial_lamports_snapshot() {
@@ -71,10 +47,6 @@ fn verify_initial_lamports_snapshot() {
         "initial_lamports must snapshot creation lamports",
     );
 }
-
-// ---------------------------------------------------------------------------
-// 5. Lamport conservation holds after a valid two-account transfer.
-// ---------------------------------------------------------------------------
 
 #[kani::proof]
 fn verify_lamport_conservation_after_transfer() {
@@ -91,24 +63,18 @@ fn verify_lamport_conservation_after_transfer() {
     assert_lamport_conservation(&[from, to]);
 }
 
-// ---------------------------------------------------------------------------
-// 6. Lamport conservation holds across a 3-account transfer chain.
-// ---------------------------------------------------------------------------
-
 #[kani::proof]
 fn verify_lamport_conservation_three_account_chain() {
     let mut a = any_agent_account(AgentConfig::new().writable());
     let mut b = any_agent_account(AgentConfig::new().writable());
     let mut c = any_agent_account(AgentConfig::new().writable());
 
-    // Transfer a -> b
     let amount_ab: u64 = kani::any();
     kani::assume(amount_ab <= a.lamports);
     kani::assume(b.lamports.checked_add(amount_ab).is_some());
     a.lamports -= amount_ab;
     b.lamports += amount_ab;
 
-    // Transfer b -> c
     let amount_bc: u64 = kani::any();
     kani::assume(amount_bc <= b.lamports);
     kani::assume(c.lamports.checked_add(amount_bc).is_some());
@@ -118,16 +84,11 @@ fn verify_lamport_conservation_three_account_chain() {
     assert_lamport_conservation(&[a, b, c]);
 }
 
-// ---------------------------------------------------------------------------
-// 7. No-reentrancy assertion passes when all depths are 0.
-// ---------------------------------------------------------------------------
-
 #[kani::proof]
 fn verify_no_reentrancy_clean() {
     let a = any_agent_account(AgentConfig::new());
     let b = any_agent_account(AgentConfig::new());
 
-    // any_agent_account always sets reentry_depth to 0
     labeled_assert(
         a.reentry_depth == 0,
         "fresh account reentry_depth must be 0",
@@ -139,10 +100,6 @@ fn verify_no_reentrancy_clean() {
 
     assert_no_reentrancy(&[a, b]);
 }
-
-// ---------------------------------------------------------------------------
-// 8. CPI authorization passes when all targets are in the allowed set.
-// ---------------------------------------------------------------------------
 
 #[kani::proof]
 fn verify_cpi_authorized_subset() {
@@ -167,43 +124,26 @@ fn verify_cpi_authorized_subset() {
     assert_cpi_authorized(&log, &allowed);
 }
 
-// ---------------------------------------------------------------------------
-// 9. Valid state machine transition through defined edges.
-// ---------------------------------------------------------------------------
-
 #[kani::proof]
 fn verify_state_machine_valid_transition() {
     let edges: [(u8, u8); 2] = [(0, 1), (1, 2)];
 
-    // 0 -> 1 is a valid edge
     assert_valid_transition(0u8, 1u8, &edges);
-    // 1 -> 2 is a valid edge
     assert_valid_transition(1u8, 2u8, &edges);
-    // Self-transitions are always valid
     assert_valid_transition(0u8, 0u8, &edges);
     assert_valid_transition(2u8, 2u8, &edges);
 }
-
-// ---------------------------------------------------------------------------
-// 10. Terminal state cannot transition to a different state.
-// ---------------------------------------------------------------------------
 
 #[kani::proof]
 fn verify_terminal_state_holds() {
     let terminal_states: [u8; 1] = [2];
 
-    // Terminal state staying put is fine
     assert_terminal_state(2u8, 2u8, &terminal_states);
 
-    // Non-terminal state can go anywhere (no assertion triggered)
     let next: u8 = kani::any();
     assert_terminal_state(0u8, next, &terminal_states);
     assert_terminal_state(1u8, next, &terminal_states);
 }
-
-// ---------------------------------------------------------------------------
-// 11. PDA with 16 seeds of 32 bytes each passes validation.
-// ---------------------------------------------------------------------------
 
 #[kani::proof]
 fn verify_pda_seed_limits() {
@@ -216,16 +156,11 @@ fn verify_pda_seed_limits() {
     assert_seed_count_valid(16);
     assert_seed_lengths_valid(&seeds);
 
-    // Also verify smaller counts work
     assert_seed_count_valid(0);
     assert_seed_count_valid(1);
 
     kani::cover!(true, "PDA seed limit path reachable");
 }
-
-// ---------------------------------------------------------------------------
-// 12. cpi_stub! macro records exactly one call into the log.
-// ---------------------------------------------------------------------------
 
 #[kani::proof]
 fn verify_cpi_stub_records_call() {
@@ -245,22 +180,15 @@ fn verify_cpi_stub_records_call() {
 
     kani::assert(log.count() == 1, "cpi_stub must record exactly one call");
 
-    // Verify the recorded program matches
-    let mut found = false;
-    let mut i = 0;
-    while i < 16 {
-        if i < log.count() {
-            // We can verify via iteration that at least one record exists
-            found = true;
-        }
-        i += 1;
+    let record = log.get(0);
+    kani::assert(record.is_some(), "recorded CPI call must exist in log");
+    if let Some(record) = record {
+        kani::assert(
+            record.target_program == STUB_PROGRAM,
+            "recorded CPI program mismatch",
+        );
     }
-    kani::assert(found, "recorded CPI call must exist in log");
 }
-
-// ---------------------------------------------------------------------------
-// 13. cpi_contract! macro records a contract-style CPI call.
-// ---------------------------------------------------------------------------
 
 #[kani::proof]
 fn verify_cpi_contract_records_call() {
@@ -293,10 +221,6 @@ fn verify_cpi_contract_records_call() {
     );
 }
 
-// ---------------------------------------------------------------------------
-// 14. cpi_contract! can carry custom record metadata.
-// ---------------------------------------------------------------------------
-
 #[kani::proof]
 fn verify_cpi_contract_records_metadata() {
     const TOKEN_PROGRAM: [u8; 32] = [0xEF; 32];
@@ -324,20 +248,19 @@ fn verify_cpi_contract_records_metadata() {
     transfer_with_metadata(amount, touched, &mut log);
     kani::assert(log.count() == 1, "expected exactly one CPI record");
 
-    let record = log.get(0).expect("missing CPI record");
-    kani::assert(
-        record.lamports_transferred == amount,
-        "lamports_transferred metadata mismatch",
-    );
-    kani::assert(
-        record.accounts_touched == touched,
-        "accounts_touched metadata mismatch",
-    );
+    let record = log.get(0);
+    kani::assert(record.is_some(), "missing CPI record");
+    if let Some(record) = record {
+        kani::assert(
+            record.lamports_transferred == amount,
+            "lamports_transferred metadata mismatch",
+        );
+        kani::assert(
+            record.accounts_touched == touched,
+            "accounts_touched metadata mismatch",
+        );
+    }
 }
-
-// ---------------------------------------------------------------------------
-// 15. cpi_contract! auto_asserts execute oracle/timelock/FSM checks.
-// ---------------------------------------------------------------------------
 
 #[kani::proof]
 fn verify_cpi_contract_auto_asserts() {
@@ -368,13 +291,9 @@ fn verify_cpi_contract_auto_asserts() {
             } else {
                 agent_signed || oracle_signed
             };
-            let edges = [(0u8, 1u8), (1u8, 2u8), (2u8, 3u8)];
-            let terminals = [3u8];
             kani::assume(before_step <= 3);
             kani::assume(after_step <= 3);
             kani::assume(before_step == after_step || (before_step + 1 == after_step));
-            let release_allowed = _release_allowed;
-            let _ = (edges, terminals, release_allowed);
         },
         ensures: {},
         auto_asserts: {
@@ -394,10 +313,6 @@ fn verify_cpi_contract_auto_asserts() {
     );
 }
 
-// ---------------------------------------------------------------------------
-// 16. Oracle consensus helper enforces quorum and score cap.
-// ---------------------------------------------------------------------------
-
 #[kani::proof]
 fn verify_oracle_consensus_helper() {
     let commits: u8 = kani::any();
@@ -413,10 +328,6 @@ fn verify_oracle_consensus_helper() {
 
     assert_oracle_consensus(commits, reveals, quorum, median_score, score_cap);
 }
-
-// ---------------------------------------------------------------------------
-// 17. Combined FSM guard enforces transition + terminal checks.
-// ---------------------------------------------------------------------------
 
 #[kani::proof]
 fn verify_fsm_transition_guard() {

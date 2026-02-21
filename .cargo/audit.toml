@@ -1,0 +1,5 @@
+[advisories]
+# Transitive through solana-program 2.3.x; no maintained replacement is
+# available yet without moving to an unreleased Solana dependency chain.
+# Revisit on every Solana toolchain bump.
+ignore = ["RUSTSEC-2025-0141"]

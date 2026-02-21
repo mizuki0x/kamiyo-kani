@@ -93,11 +93,7 @@ pub fn funding_payment(position: u128, rate_num: i128, rate_den: u128, is_long: 
         return 0;
     }
 
-    let abs_num: u128 = if rate_num == i128::MIN {
-        (i128::MAX as u128) + 1
-    } else {
-        rate_num.abs() as u128
-    };
+    let abs_num: u128 = rate_num.unsigned_abs();
 
     let magnitude: i128 = match position.checked_mul(abs_num) {
         Some(prod) => {

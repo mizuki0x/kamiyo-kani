@@ -17,3 +17,8 @@ Do not open public issues for security disclosures.
 - acknowledgment: 2 business days
 - triage: 7 business days
 - remediation timeline: severity-based
+
+## Dependency posture
+
+- CI runs `cargo audit --deny warnings` on push, PR, and weekly schedule.
+- Advisory exceptions are tracked in `.cargo/audit.toml` and must include a concrete rationale.
