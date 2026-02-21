@@ -5,6 +5,8 @@
 - `RELEASE_CHECKLIST.md`: release quality and adoption checklist
 - `ADOPTION.md`: channel and launch plan
 - `USER_GUIDE.md`: step-by-step integration and CI patterns
+- `SKILLS.md`: AI-assisted fork customization workflow
+- `FORK_GUIDE.md`: how to keep forks small and auditable
 
 API docs are published from `cargo doc` to GitHub Pages:
 

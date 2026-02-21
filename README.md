@@ -357,6 +357,36 @@ KANI_FULL=1 ./scripts/kani.sh
 KANI_FULL=1 KANI_STRESS=1 ./scripts/kani.sh
 ```
 
+## AI skills for fork customization
+
+Use skills to generate fork-local proofs instead of expanding upstream core for every Solana program shape.
+
+List available skills:
+
+```bash
+./scripts/skills-apply.sh --list
+```
+
+Render a skill prompt:
+
+```bash
+./scripts/skills-apply.sh \
+  --skill solana-account-generator \
+  --version 1.0 \
+  --files-modified crates/kamiyo-kani/src/account_info.rs,crates/kamiyo-kani/tests/account_info_verify.rs
+```
+
+Apply a reviewed AI patch:
+
+```bash
+./scripts/skills-apply.sh \
+  --skill add-solana-token-proof \
+  --version 1.0 \
+  --patch-file /tmp/llm.patch
+```
+
+Run logs are written to `.skills/runs/` for auditability.
+
 ## Phase roadmap
 
 - Phase 1: shipped core Solana invariants and `AccountInfo` generators
@@ -374,6 +404,8 @@ KANI_FULL=1 KANI_STRESS=1 ./scripts/kani.sh
 - `docs/RELEASE_CHECKLIST.md`
 - `docs/ADOPTION.md`
 - `docs/USER_GUIDE.md`
+- `docs/SKILLS.md`
+- `docs/FORK_GUIDE.md`
 
 ## Included assets
 

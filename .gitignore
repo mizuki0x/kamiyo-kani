@@ -4,4 +4,5 @@
 kani-results/
 bench-results/
 public/
+.skills/runs/
 .DS_Store

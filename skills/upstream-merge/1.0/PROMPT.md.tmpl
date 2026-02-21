@@ -1,0 +1,23 @@
+You are applying skill {{SKILL_ID}} v{{SKILL_VERSION}} in {{TARGET_REPO}}.
+
+Files in scope:
+{{FILES_MODIFIED}}
+
+Task:
+1. Reconcile upstream changes with fork-local proof extensions.
+2. Keep upstream bug/security fixes unless they break proven invariants.
+3. Keep a concise merge log in commit message body or PR notes.
+
+Conflict policy:
+- Prefer upstream for protocol/security correctness.
+- Re-apply local extensions only when they remain compatible.
+- If uncertain, fail closed and keep stricter invariant checks.
+
+Acceptance criteria:
+- `cargo fmt --all -- --check` passes
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings` passes
+- `cargo test --workspace` passes
+- `./scripts/kani.sh` passes
+
+Output format:
+- Provide a unified patch only.

@@ -1,0 +1,25 @@
+You are applying skill {{SKILL_ID}} v{{SKILL_VERSION}} in {{TARGET_REPO}}.
+
+Files in scope:
+{{FILES_MODIFIED}}
+
+Task:
+1. Implement or refine replay/idempotency semantics for request/event IDs.
+2. Prove these properties:
+   - first event accepted
+   - identical duplicate accepted
+   - conflicting duplicate rejected
+3. Add CPI authorization + lamport conservation assertions when settlement is modeled.
+
+Constraints:
+- Avoid hidden mutable global state.
+- Keep transition/state modeling explicit.
+
+Acceptance criteria:
+- `cargo fmt --all -- --check` passes
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings` passes
+- `cargo test --workspace` passes
+- `cargo kani -p kamiyo-kani --features solana-agent --tests` passes
+
+Output format:
+- Provide a unified patch only.

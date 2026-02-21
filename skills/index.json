@@ -1,0 +1,38 @@
+{
+  "version": "1",
+  "skills": [
+    {
+      "id": "solana-account-generator",
+      "version": "1.0",
+      "summary": "Extend symbolic AccountInfo generators and harnesses for Solana account constraints",
+      "default_files": [
+        "crates/kamiyo-kani/src/account_info.rs",
+        "crates/kamiyo-kani/tests/account_info_verify.rs"
+      ]
+    },
+    {
+      "id": "add-solana-token-proof",
+      "version": "1.0",
+      "summary": "Add token safety proofs (authority, conservation, capped mint/burn invariants)",
+      "default_files": [
+        "crates/kamiyo-kani/src/token.rs",
+        "examples"
+      ]
+    },
+    {
+      "id": "add-replay-safety-proof",
+      "version": "1.0",
+      "summary": "Add replay/idempotency checks for request IDs and payload hashes",
+      "default_files": [
+        "crates/kamiyo-kani/src/agent/replay.rs",
+        "examples"
+      ]
+    },
+    {
+      "id": "upstream-merge",
+      "version": "1.0",
+      "summary": "Apply upstream fixes into a fork while preserving local proof extensions",
+      "default_files": []
+    }
+  ]
+}

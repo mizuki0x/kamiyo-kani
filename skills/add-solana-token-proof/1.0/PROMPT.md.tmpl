@@ -1,0 +1,26 @@
+You are applying skill {{SKILL_ID}} v{{SKILL_VERSION}} in {{TARGET_REPO}}.
+
+Files in scope:
+{{FILES_MODIFIED}}
+
+Task:
+1. Add one token safety invariant set relevant to Solana programs:
+   - mint authority required for mint updates, or
+   - burn cannot exceed balance/supply, or
+   - transfer preserves total value and respects signer/owner checks.
+2. Implement proof helpers and at least one `#[kani::proof]` harness.
+3. Add an example crate if a runnable fail->fix pattern is useful.
+
+Constraints:
+- Keep helper APIs reusable.
+- Use checked arithmetic where overflow could hide bugs.
+- Keep proofs deterministic for CI.
+
+Acceptance criteria:
+- `cargo fmt --all -- --check` passes
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings` passes
+- `cargo test --workspace` passes
+- `./scripts/kani.sh` passes
+
+Output format:
+- Provide a unified patch only.

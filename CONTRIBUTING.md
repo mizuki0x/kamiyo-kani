@@ -34,3 +34,12 @@ Each PR should include:
 - exact commands executed
 - before/after behavior if a proof was fixed
 - docs updates for any new harness or feature flag
+
+## Skills contributions
+
+When adding or updating a skill in `skills/`:
+
+- include both `SKILL.md` and `PROMPT.md.tmpl`
+- keep prompts narrow to one invariant class
+- update `skills/index.json`
+- update `docs/SKILLS.md` if usage changes

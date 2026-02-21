@@ -1,0 +1,29 @@
+You are applying skill {{SKILL_ID}} v{{SKILL_VERSION}} in {{TARGET_REPO}}.
+
+Context:
+- This repository ships reusable Kani primitives for Solana programs.
+- Keep changes minimal, explicit, and easy to audit.
+- Prefer extending existing account generator and proof patterns.
+
+Files in scope:
+{{FILES_MODIFIED}}
+
+Task:
+1. Extend symbolic account generation with one concrete safety dimension (example: writable + owner coupling, rent floor shape, or PDA discriminator shape).
+2. Add/adjust Kani harnesses that prove the new invariant.
+3. Keep assumptions tight to avoid path explosion.
+4. Update docs if user-facing behavior changed.
+
+Constraints:
+- No dead code or placeholder TODOs.
+- Keep naming concise and Rust-idiomatic.
+- Preserve existing API unless breakage is justified.
+
+Acceptance criteria:
+- `cargo fmt --all -- --check` passes
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings` passes
+- `cargo test --workspace` passes
+- `cargo kani -p kamiyo-kani --features solana-account-info --tests` passes
+
+Output format:
+- Provide a unified patch only.
