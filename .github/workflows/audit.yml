@@ -22,6 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - name: Enforce dependency trust boundary
+        run: ./scripts/check-trust-boundary.sh
       - name: Install cargo-audit
         run: cargo install --locked cargo-audit
       - name: Run cargo-audit

@@ -20,6 +20,7 @@
 - [ ] publish at least 3 real bug classes with fail/pass proof diffs
 - [ ] document all assumptions and unsupported Solana runtime semantics
 - [ ] pin reproducible toolchain versions for releases
+- [ ] trust-boundary check passes (`./scripts/check-trust-boundary.sh`)
 
 ## Adoption bar
 

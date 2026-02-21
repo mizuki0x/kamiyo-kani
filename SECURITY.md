@@ -22,3 +22,4 @@ Do not open public issues for security disclosures.
 
 - CI runs `cargo audit --deny warnings` on push, PR, and weekly schedule.
 - Advisory exceptions are tracked in `.cargo/audit.toml` and must include a concrete rationale.
+- CI also enforces the trust boundary (`./scripts/check-trust-boundary.sh`) to block git/path dependencies in workspace crates.

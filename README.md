@@ -27,6 +27,7 @@ This project follows a simple principle: collaboration lifts the ecosystem. Shar
 Project posture:
 - contribute generic verification gaps upstream to Kani
 - keep Solana-focused agentic verification layers here
+- keep proof-critical spec logic in-repo (no external spec-crate trust expansion)
 - ship runnable fail->fix examples so teams can adopt without a formal methods team
 
 ## Install
@@ -407,6 +408,7 @@ Run logs are written to `.skills/runs/` for auditability.
 - `docs/USER_GUIDE.md`
 - `docs/SKILLS.md`
 - `docs/FORK_GUIDE.md`
+- `docs/TRUST_MODEL.md`
 
 ## Included assets
 
