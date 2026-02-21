@@ -18,7 +18,7 @@ fi
 metadata_file="$(mktemp)"
 trap 'rm -f "${metadata_file}"' EXIT
 
-cargo metadata --format-version 1 > "${metadata_file}"
+cargo metadata --format-version 1 --no-deps > "${metadata_file}"
 
 git_dep_violations="$(
   jq -r '
@@ -50,9 +50,7 @@ path_dep_violations="$(
   ' "${metadata_file}"
 )"
 
-lockfile_git_sources="$(
-  rg -n 'source = "git\+' Cargo.lock || true
-)"
+lockfile_git_sources="$(grep -nE 'source = "git\+' Cargo.lock || true)"
 
 if [[ -n "${git_dep_violations}" || -n "${path_dep_violations}" || -n "${lockfile_git_sources}" ]]; then
   echo "trust-boundary check failed" >&2

@@ -9,10 +9,12 @@ The crate is technically solid and proof coverage is broad, but there were still
 ## High Priority (P1 - Fix Before Launch)
 - [x] No enforced dependency-audit gate in CI | New advisories could land silently and ship without review | Added `Dependency Audit` workflow and repo-local `.cargo/audit.toml` policy with explicit exception tracking.
 - [x] CI test job did not execute feature-gated paths | Regressions in `solana-agent` / `solana-account-info` could pass CI unnoticed | Updated CI tests to run `cargo test --workspace --all-features`.
+- [x] Trust-boundary validation only ran in audit workflow | Dependency-policy regressions could fail later than necessary | Added trust-boundary check to main CI and kept it in dependency audit workflow.
 
 ## Medium Priority (P2 - Fix Soon After Launch)
 - [x] Skills patch application lacked preflight validation | Bad patches could fail midway and leave unclear operator feedback | Added `git apply --check` preflight and strict target-repo validation in `scripts/skills-apply.sh`.
 - [x] Skills CLI argument parsing did not guard missing flag values | User/operator mistakes produced brittle failure modes | Added explicit missing-value checks for all value-taking flags.
+- [x] Trust-boundary script relied on non-portable tooling assumptions | Runner drift could cause false failures | Reduced metadata scope (`--no-deps`) and switched lockfile scan to POSIX-available `grep`.
 
 ## Low Priority (P3 - Technical Debt)
 - [x] Proof test file had heavy narrative comments and one `expect` path | Reviewability and style drift from production code standards | Cleaned `crates/kamiyo-kani/tests/agent_verify.rs` to be concise and deterministic while preserving behavior.

@@ -19,6 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - name: trust boundary
+        run: ./scripts/check-trust-boundary.sh
       - name: fmt
         run: cargo fmt --all -- --check
       - name: clippy
