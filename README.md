@@ -8,7 +8,7 @@
 [![Crates.io](https://img.shields.io/crates/v/kamiyo-kani.svg)](https://crates.io/crates/kamiyo-kani)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-![kamiyo-kani](https://github.com/user-attachments/assets/316bc32f-dbf1-4872-8508-6788392817f8)
+![kamiyo-claws](https://github.com/user-attachments/assets/fbf3a510-0c9f-4a0a-a261-a57d79ca3855)
 
 Reusable Kani verification primitives and harnesses for Solana programs.
 
