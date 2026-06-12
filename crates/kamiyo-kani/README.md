@@ -31,7 +31,7 @@ fn payout_is_bounded_by_profit() {
     let (h_num, h_den) = haircut_ratio(vault, principal_total, insurance, pnl_pos_total);
     let payout = effective_pnl(my_pnl, h_num, h_den);
 
-    kani::assert(payout <= my_pnl.max(0) as u128);
+    kani::assert(payout <= my_pnl.max(0) as u128, "payout bounded by positive pnl");
 }
 ```
 
