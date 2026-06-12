@@ -11,4 +11,4 @@
 
 API docs are published from `cargo doc` to GitHub Pages:
 
-- https://kamiyo-ai.github.io/kamiyo-kani/kamiyo_kani/
+- https://mizuki0x.github.io/kamiyo-kani/kamiyo_kani/

@@ -3,7 +3,7 @@
 ## Local setup
 
 ```bash
-git clone https://github.com/kamiyo-ai/kamiyo-kani.git
+git clone https://github.com/mizuki0x/kamiyo-kani.git
 cd kamiyo-kani
 cargo check --workspace
 ```

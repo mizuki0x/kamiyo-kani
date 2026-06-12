@@ -17,7 +17,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kamiyo-ai/kamiyo-kani.git",
+    "url": "git+https://github.com/mizuki0x/kamiyo-kani.git",
     "directory": "packages/kamiyo-kani-js"
   },
   "publishConfig": {
